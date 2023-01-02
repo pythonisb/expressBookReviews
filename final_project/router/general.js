@@ -19,42 +19,49 @@ public_users.post("/register", (req, res) => {
   }
 });
 
-// Get the book list available in the shop
 public_users.get('/',function (req, res) {
-    res.send(JSON.stringify(books,null,4)); //practice lab
-  return res.status(300).json({message: "Yet to be implemented"});
+    let findBook = new Promise((resolve,reject) => {
+        res.send(JSON.stringify({books},null,4))
+    }); //referred to the Promises and Callback lab (removed success message)
+    return res.status(200).json({message: "Book not found!"})
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-    const isbn = req.params.isbn;
-    res.send(JSON.stringify(books[isbn]));
-  return res.status(300).json({message: "Yet to be implemented"});
+    let findISBN = new Promise((resolve,reject) => {
+        const isbn = req.params.isbn;
+        res.send(JSON.stringify(books[isbn]));
+    })
+    return res.status(200).json({message: "ISBN not found!"})
  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-    var author = req.params.author.replaceAll("+", " "); //replace spacebar with a plus sign in URL
-    var authors = Object.keys(books); //obtain keys in the books object
-    authors.forEach(function(key){ //iterate through each books array
-        if(books[key].author == author) {
-            return res.status(200).send(JSON.stringify(books[key]));
-        }
+    let findAuthor = new Promise((resolve, reject) => {
+        var author = req.params.author.replaceAll("+", " ");
+        var authors = Object.keys(books);
+        authors.forEach(function(key) {
+            if(books[key].author == author) {
+                return res.status(200).send(JSON.stringify(books[key]));
+            }
+        });
     });
-    return res.status(200).json({message: "Yet to be implemented!"});
+    return res.status(200).json({message: "No author found!"});
     });
 
 // Get all books based on title
 //similar to task 3
 public_users.get('/title/:title',function (req, res) {
-    var title = req.params.title.replaceAll("+", " ");
-    var titles = Object.keys(books);
-    titles.forEach(function(key){
-        if(books[key].title == title) {
-            return res.status(200).send(JSON.stringify(books[key]));
-        }
-    });
-    return res.status(200).json({message: "Yet to be implemented!"});
+    let findTitle = new Promise((resolve,reject) => {
+        var title = req.params.title.replaceAll("+", " ");
+        var titles = Object.keys(books);
+        titles.forEach(function(key) {
+            if (books[key].title == title) {
+                return res.status(200).send(JSON.stringify(books[key]));
+            }
+        });
+        });
+        return res.status(200).json({message: "No title found!"});
 });
 
 //  Get book review
