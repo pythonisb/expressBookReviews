@@ -15,7 +15,7 @@ const isValid = (username)=>{
 }
 
 const authenticatedUser = (username,password)=>{ 
-    let clear_users = users.filter((user => (user.username === username) && (username.password === password)));
+    let clear_users = users.filter((user) => (user.username === username) && (username.password === password));
     if (clear_users.length != 0) {
         return true;
     } else {
@@ -31,14 +31,14 @@ regd_users.post("/login", (req,res) => {
   }
 
   if (authenticatedUser(username, password)) {
-      let token = jwt.sign(
+      let accessToken = jwt.sign(
           {data: password},
           "access",
           {expiresIn: 60*60}
       );
 
       req.session.authorization = {
-          token, username
+          accessToken, username
       };
       return res.status(200).send("User successfuly logged in. Welcome.");  
   } else {
