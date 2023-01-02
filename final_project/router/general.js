@@ -22,7 +22,7 @@ public_users.post("/register", (req, res) => {
 public_users.get('/',function (req, res) {
     let findBook = new Promise((resolve,reject) => {
         res.send(JSON.stringify({books},null,4))
-    }); //referred to the Promises and Callback lab (removed success message)
+    }); 
     return res.status(200).json({message: "Book not found!"})
 });
 
