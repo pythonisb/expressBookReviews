@@ -6,50 +6,64 @@ const regd_users = express.Router();
 let users = [];
 
 const isValid = (username)=>{ 
-    let existing_users = users.filter((user) => user.username === username);
-    if (existing_users.length != 0) {
-        return true;
-    } else {
-        return false;
-    }
+let existingusers = users.filter((user)=>{
+    return user.username === username
+  });
+  return (existingusers.length > 0);
+
 }
 
 const authenticatedUser = (username,password)=>{ 
-    let clear_users = users.filter((user) => (user.username === username) && (username.password === password));
-    if (clear_users.length != 0) {
-        return true;
-    } else {
-        return false;
-    }
+let authorizedusers = users.filter((user)=>{
+    return (user.username === username && user.password === password)
+  });
+  return (authorizedusers.length > 0);
 }
-//only registered users can login
+
 regd_users.post("/login", (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
-  if (!password || !username) {
-      return res.status(404).json({message: "Error. Please check your username and/or password."})
+  if (!username || !password) {
+      return res.status(404).json({message: "Error. Please try again!"});
   }
-
-  if (authenticatedUser(username, password)) {
-      let accessToken = jwt.sign(
-          {data: password},
-          "access",
-          {expiresIn: 60*60}
-      );
-
-      req.session.authorization = {
-          accessToken, username
-      };
-      return res.status(200).send("User successfuly logged in. Welcome.");  
+  if (authenticatedUser(username,password)) {
+    let accessToken = jwt.sign({
+      data: password
+    }, 'access', { expiresIn: 4000 });
+    req.session.authorization = {
+      accessToken,username
+  }
+  return res.status(200).send("User logged in. Welcome!");
   } else {
-      return res.status(208).send("Please check username or password");
+    return res.status(208).json({message: "Login unsuccessful. Please check username and password"});
   }
 });
 
-// Add a book review
+
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn = req.params.isbn;
+  const review = req.query.review;
+  const username = req.session.authorization.username;
+  if (books[isbn]) {
+      let registered_books = books[isbn];
+      registered_books.reviews[username] = review;
+      return res.status(200).send("Review submitted. Thanks!")
+  } else {
+      return res.status(404).json({message: "ISBN ${isbn} is invalid. Please try again!"});
+  }
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const review = req.query.review;
+    const username = req.session.authorization.username;
+    if (books[isbn]) {
+        let registered_books = books[isbn];
+        delete registered_books.reviews[username];
+        return res.status(200).send("Reviewed deleted. Thanks!")
+    } else {
+        return res.status(404).json({message: "ISBN ${isbn} is invalid. Please try again!"});
+    }
 });
 
 module.exports.authenticated = regd_users;
